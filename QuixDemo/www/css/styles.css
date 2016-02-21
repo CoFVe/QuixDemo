@@ -1,0 +1,38 @@
+﻿.text-stroke {
+    -webkit-text-stroke-width: .33px;
+    -webkit-text-stroke-color: #000000;
+    -webkit-text-fill-color: #FFFFFF;
+}
+
+.ui-input-text {
+    border:3px solid black;
+}
+.ui-btn {
+    border:3px solid black;
+}
+.ui-mobile .ui-page {
+    border:3px solid black;
+}
+
+.error {
+    color: red;
+}
+.ui-loader-background {
+    width: 100%;
+    height: 100%;
+    top: 0;
+    margin: 0;
+    background: #000000;
+    background: rgba(0, 0, 0, 0.3);
+    display: none;
+    position: fixed;
+    z-index: 10000;
+}
+
+.ui-loading .ui-loader-background {
+    display: block;
+}
+
+.ui-listview {
+    margin: 1em;
+}

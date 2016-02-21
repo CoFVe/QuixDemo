@@ -1,0 +1,184 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>QuixDemo</title>
+    <link href="css/jquery-ui.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="./css/Quix.min.css" />
+    <link rel="stylesheet" href="./css/jquery.mobile.icons.min.css" />
+    <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile.structure-1.4.5.min.css"/>
+    <link rel="stylesheet" href="http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css"/>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.10/css/jquery.dataTables.min.css" />
+    <link href="fonts/fonts.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/localization/messages_es.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/additional-methods.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.10/js/jquery.dataTables.min.js"></script>
+    <script>
+    $(document).on('mobileinit',function(){
+        $.mobile.pushStateEnabled = false;
+    });
+    </script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.js"></script>
+    <script src="scripts/jquery-ui.min.js"></script>
+    <script src="https://cdn.firebase.com/js/client/2.4.0/firebase.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsviews/0.9.72/jsviews.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <script src="./scripts/fastclick.js"></script>
+
+
+    <style>
+
+        .text-stroke {
+            -webkit-text-stroke-width: .33px;
+            -webkit-text-stroke-color: #000000;
+            -webkit-text-fill-color: #FFFFFF;
+        }
+
+        .ui-input-text {
+            border:3px solid black;
+        }
+        .ui-btn {
+            border:3px solid black;
+        }
+        .ui-mobile .ui-page {
+            border:3px solid black;
+        }
+
+        .error {
+            color: red;
+        }
+        .ui-loader-background {
+            width: 100%;
+            height: 100%;
+            top: 0;
+            margin: 0;
+            background: rgba(0, 0, 0, 0.3);
+            display: none;
+            position: fixed;
+            z-index: 10000;
+        }
+
+        .ui-loading .ui-loader-background {
+            display: block;
+        }
+
+        .ui-listview {
+            margin: 1em;
+        }
+
+    </style>
+
+</head>
+<body>
+
+<script id="tmplDashboard" type="text/x-jsrender">
+        <div class="ui-grid-b">
+            <div class="ui-block-a">
+                <div class="ui-bar ui-bar-a">
+                    <h1>Usuarios Registrados</h1>
+                </div>
+            </div>
+            <div class="ui-block-b">
+                <div class="ui-bar ui-bar-a">
+                    <h1>Respuestas Enviadas</h1>
+                </div>
+            </div>
+            <div class="ui-block-c">
+                <div class="ui-bar ui-bar-a">
+                    <h1>Tabla de Clasificación</h1>
+                </div>
+            </div>
+            
+            <div class="ui-block-a">
+                {{for Users}}
+                <div class="ui-bar ui-bar-d">
+                    <p>
+                        {{props #data}}
+                        <strong>{{>key}}</strong>
+                        <span> - {{>prop.registerDate }}</span>
+                        {{/props}}
+                    </p>
+                </div>
+                {{/for}}
+            </div>
+            <div class="ui-block-b">
+                {{for Answers}}
+                <div class="ui-bar ui-bar-d">
+                    
+                    <p style="    float: left;">
+                        {{props #data}}<strong>{{>key}}</strong>{{/props}}
+                    </p>
+                    {{if #data}}
+                    {{props #data}}
+                        {{for prop }}
+                            {{if #data}}
+                            <p>Tiempo: {{:#data.time.toFixed(2)}} - Puntos: {{:#data.totalPoints.toFixed(2)}}</p>
+                            {{/if}}
+                        {{/for}}
+                    {{/props}}
+                    {{/if}}
+                </div>
+                {{/for}}
+            </div>
+            <div class="ui-block-c">
+                
+                <div class="ui-bar ui-bar-d">
+                    <table id="tblResults" style="width:100%; padding:0; margin:0;">
+                        <thead>
+                            <tr>
+                                <th>Puntos</th>
+                                <th>Nickname</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{for Results}}
+                            <tr>
+                                {{props #data}}
+                                <td>
+                                    {{>prop.points.toFixed(2) }}
+                                </td>
+                                <td>
+                                    {{>key}}
+                                </td>
+                                
+                                {{/props}}
+                            </tr>
+                            {{/for}}
+                        </tbody>
+                    </table>
+                    <p>
+                        
+                    </p>
+                </div>
+                
+            </div>
+            
+        </div>
+    </script>
+
+<script id="tmplAnswers" type="text/x-jsrender">
+        
+</script>
+
+        <div data-role="page" data-theme="d">
+            <div data-role="content" style="text-align: center; margin: 0; padding: 0;">
+                <h1 style="font-size: 7em; margin: -.2em 0 0 0 ; font-weight: bolder;" class="text-stroke">quix</h1>
+                <div id="plhDashboard">
+
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Cordova reference, this is added to your app when it's built. -->
+        <script src="cordova.js"></script>
+        <script src="scripts/platformOverrides.js"></script>
+
+        <script src="scripts/dashboard.js"></script>
+        <div class="ui-loader-background"></div>
+</body>
+</html>

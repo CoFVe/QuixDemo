@@ -1,0 +1,131 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>QuixDemo</title>
+    <link href="css/jquery-ui.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="./css/Quix.min.css"/>
+    <link rel="stylesheet" href="./css/jquery.mobile.icons.min.css"/>
+    <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile.structure-1.4.5.min.css"/>
+    <link rel="stylesheet" href="http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css"/>
+    <link href="fonts/fonts.css" rel="stylesheet"/>
+    <link href="css/styles.css" rel="stylesheet"/>
+    <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/localization/messages_es.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/additional-methods.min.js"></script>
+    <script>
+        $(document).on('mobileinit', function() {
+            $.mobile.pushStateEnabled = false;
+        });
+    </script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.js"></script>
+    <script src="scripts/jquery-ui.min.js"></script>
+    <script src="https://cdn.firebase.com/js/client/2.4.0/firebase.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsviews/0.9.72/jsviews.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <script src="./scripts/fastclick.js"></script>
+    <script src="./scripts/pageEvent.js"></script>
+    <script src="./scripts/pageLogin.js"></script>
+    <script src="./scripts/pageQuestions.js"></script>
+    <script src="./scripts/pageTotalResults.js"></script>
+</head>
+<body>
+
+<script id="tmplLogin" type="text/x-jsrender">
+    <div class="ui-field-contain ui-alt-icon" style="margin: 2em .5em 0 .5em;">
+        <input type="text" placeholder="{{:literals.litNickname}}" onkeyup="$app.catchEnter($('#btnLogin')); return false;" data-clear-btn="true" data-theme="d" data-link="username" required />
+        <a id="btnLogin" href="#" data-link="data-url{:'#pageQuestion' + firstQuestion}" onclick="return $app.pageLogin.doEnter(this);" class="ui-btn ui-input-btn ui-corner-all ui-shadow ui-btn-inline" data-transition="slide"><span data-link="literals.litBtnLogin"></span></a>
+    </div>
+</script>
+
+<script id="tmplEvent" type="text/x-jsrender">
+    <div class="ui-field-contain ui-alt-icon" style="margin: 2em .5em 0 .5em;">
+        <input type="text" placeholder="{{:literals.litEvent}}" onkeyup="$app.catchEnter($('#btnSignUp')); return false;" data-clear-btn="true" data-theme="d" data-link="eventName" required />
+        <a id="btnSignUp" href="#" data-link="#pageLogin" onclick="return $app.pageEvent.doRegister(this);" class="ui-btn ui-input-btn ui-corner-all ui-shadow ui-btn-inline" data-transition="fade"><span data-link="literals.litBtnRegister"></span></a>
+    </div>
+</script>
+
+
+<script id="tmplQuestions" type="text/x-jsrender">
+    {{if #data}}
+    <div id="pageQuestion{{:#getIndex()}}" data-role="page" data-theme="{{:theme}}">
+        <div data-role="content" style="text-align: center; margin: 0; padding: 0;">
+            <h1 style="font-size: 7em; margin: 0; font-weight: bolder;" class="text-stroke">quix</h1>
+            <div class="ui-field-contain ui-alt-icon" style="margin: 2em .5em 0 .5em;">
+                <h1>{{:title}}</h1>
+                <ul data-role="listview" data-inset="true" data-idOption="{{:#getIndex()}}">
+                    {{for Options ~nextQuestion=nextQuestion ~transition=transition}}
+                    <li>
+                        <a href="#" {{if ~nextQuestion}} data-url="#pageQuestion{{:~nextQuestion}}" data-transition="{{:~transition}}" {{/if}} data-points="{{:points}}" data-answerSelected="{{:#getIndex()}}" onclick="return $app.pageQuestions.validateAnswer(this);">{{:title}}</a>
+                    </li>
+                    {{/for}}
+                </ul>
+                {{if nextQuestion}} <a href="#" data-link="data-url{: nextQuestion !== undefined && nextQuestion !== null ? '#pageQuestion' + literals.nextQuestion : '#'}" onclick="$app.goToUrl(this);" class="ui-btn ui-input-btn ui-corner-all ui-shadow ui-btn-inline" data-transition="{{:transition}}">siguiente</a>{{/if}}
+            </div>
+        </div>
+    </div>
+    {{/if}}
+
+</script>
+
+<script id="tmplTotalResults" type="text/x-jsrender">
+    <div data-role="content" style="text-align: center; margin: 0; padding: 0;">
+        <div class="ui-field-contain ui-alt-icon" style="margin: 2em .5em 0 .5em;">
+            <h1><span>{^{if points > 300}}¡¡¡Enhorabuena{{else}}¡¡¡Que pena{{/if}}</span> {^{:nickname}}!!!</h1>
+            <span data-link="class{:points > 0 ? 'win' : 'loose'}"></span>
+            <h1>has conseguido un Total de:</h1>
+            <h1>{^{:points.toFixed(2)}} pts</h1>
+        </div>
+    </div>
+</script>
+
+<script id="tmplResults" type="text/x-jsrender">
+    <div data-role="content" style="text-align: center; margin: 0; padding: 0;">
+        <div class="ui-field-contain ui-alt-icon" style="margin: 2em .5em 0 .5em;">
+            <h1><span>{^{if points > 0}}¡¡¡Enhorabuena{{else}}¡¡¡Que pena{{/if}}</span> {^{:nickname}}!!!</h1>
+            <span data-link="class{:points > 0 ? 'win' : 'loose'}"></span>
+            <h1>has conseguido:</h1>
+            <h1>{^{:points.toFixed(2)}} pts</h1>
+        </div>
+    </div>
+</script>
+
+<div id="pageEvent" data-role="page" data-theme="a">
+    <div data-role="content" style="text-align: center; margin: 0; padding: 0;">
+        <h1>Escribe el nombre del evento</h1>
+        <form action="" method="get">
+            <div id="plhEvent"></div>
+        </form>
+    </div>
+</div>
+
+<div id="pageLogin" data-role="page" data-theme="a">
+    <div data-role="content" style="text-align: center; margin: 0; padding: 0;">
+        <h1 style="font-size: 7em; margin: 0; font-weight: bolder;" class="text-stroke">quix</h1>
+        <form action="" method="get">
+            <div id="plhLogin"></div>
+        </form>
+    </div>
+</div>
+
+<div id="pageResults" data-role="page" data-theme="a">
+
+
+</div>
+
+<div id="pageTotalResults" data-role="page" data-theme="a">
+
+
+</div>
+
+<!-- Cordova reference, this is added to your app when it's built. -->
+<script src="cordova.js"></script>
+<script src="scripts/platformOverrides.js"></script>
+
+<script src="scripts/index.js"></script>
+<div class="ui-loader-background"></div>
+</body>
+</html>
